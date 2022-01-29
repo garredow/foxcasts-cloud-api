@@ -1,4 +1,6 @@
 export type Category = {
-  podexId: number;
+  id: number;
   name: string;
+  createdAt: number;
+  updatedAt: number;
 };

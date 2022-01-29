@@ -6,3 +6,5 @@ export * from './PIApiTrendingFeed';
 export * from './Podcast';
 export * from './SearchResult';
 export * from './Soundbite';
+export * from './Subscription';
+export * from './User';

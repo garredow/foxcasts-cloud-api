@@ -1,13 +1,13 @@
 export type Podcast = {
-  podexId?: number;
+  id: number;
   itunesId?: number;
   title: string;
   author: string;
   description?: string;
   artworkUrl: string;
   feedUrl: string;
-  lastUpdated?: number;
   categories?: number[];
-  trendScore?: number;
-  imageUrlHash?: number;
+  lastFetchedEpisodes: number;
+  createdAt: number;
+  updatedAt: number;
 };

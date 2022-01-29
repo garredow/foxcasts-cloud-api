@@ -2,7 +2,7 @@ import { gql } from 'mercurius-codegen';
 
 export const Category = gql`
   type Category {
-    podexId: BigInt!
+    id: BigInt!
     title: String!
   }
 `;

@@ -1,33 +1,35 @@
 import { IResolvers } from 'mercurius';
-import { Data } from '../services/data';
 
 export const resolvers: IResolvers = {
   Query: {
-    search(root, { query, count }, ctx, info) {
-      const client = new Data();
-      return client.search(query, count ?? undefined);
+    user(root, args, { userId, dataClient }, info) {
+      return dataClient.getUserById(userId);
     },
-    async podcast(root, { podexId }, ctx, info) {
-      const client = new Data();
-      const res = await client.getPodcast(podexId);
+    search(root, { query, count }, { dataClient }, info) {
+      return dataClient.search(query, count ?? undefined);
+    },
+    async podcast(root, { id }, { dataClient }, info) {
+      const res = await dataClient.getPodcast(id);
       return res;
     },
-    async episode(root, { podexId }, ctx, info) {
-      const client = new Data();
-      const res = await client.getEpisode(podexId);
+    async episode(root, { id }, { dataClient }, info) {
+      const res = await dataClient.getEpisode(id);
       return res;
+    },
+  },
+  User: {
+    subscriptions(user, args, { dataClient }, info) {
+      return dataClient.getPodcastsByUserId(user.id);
     },
   },
   Podcast: {
-    episodes(podcast, { count }, ctx, info) {
-      const client = new Data();
-      return count > 0 ? client.getRecentEpisodes(podcast.podexId, count) : [];
+    episodes(podcast, { count }, { dataClient }, info) {
+      return count > 0 ? dataClient.getRecentEpisodes(podcast.id, count) : [];
     },
   },
   Episode: {
-    podcast(episode) {
-      const client = new Data();
-      return client.getPodcast(episode.podcastPodexId);
+    podcast(episode, args, { dataClient }) {
+      return dataClient.getPodcast(episode.podcastId);
     },
   },
 };

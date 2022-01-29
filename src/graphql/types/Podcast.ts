@@ -2,7 +2,7 @@ import { gql } from 'mercurius-codegen';
 
 export const Podcast = gql`
   type Podcast {
-    podexId: BigInt!
+    id: BigInt!
     itunesId: BigInt
     title: String!
     author: String!
@@ -13,7 +13,7 @@ export const Podcast = gql`
     episodes(count: Int!): [Episode!]!
     # categories: [Category!]!
 
-    createdAt: Int!
-    updatedAt: Int!
+    createdAt: BigInt!
+    updatedAt: BigInt!
   }
 `;

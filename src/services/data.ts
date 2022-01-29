@@ -1,17 +1,24 @@
 import PodcastIndexClient from 'podcastdx-client';
+import { Database } from '../database/db';
 import { config } from '../lib/config';
-import { SearchResult } from '../models';
-import { toEpisode, toPodcast, toSearchResult } from '../utils/mappers';
+import { Episode, Podcast, SearchResult, User } from '../models';
+import { toSearchResult } from '../utils/mappers';
 
 export class Data {
+  db: Database;
   podcastIndex: PodcastIndexClient;
 
-  constructor() {
+  constructor(db?: Database) {
+    this.db = db ?? new Database();
     this.podcastIndex = new PodcastIndexClient({
       key: config.podcastIndex.apiKey,
       secret: config.podcastIndex.apiSecret,
       disableAnalytics: true,
     });
+  }
+
+  async getUserById(id: string): Promise<User> {
+    return this.db.addUser({ id });
   }
 
   async search(query: string, count = 30) {
@@ -23,18 +30,56 @@ export class Data {
   }
 
   async getPodcast(podexId: number) {
-    const podcast = await this.podcastIndex.podcastById(podexId);
-    return toPodcast(podcast.feed);
+    const existing = await this.db.getPodcastById(podexId);
+    if (existing) {
+      await this.db.updatePodcast(existing.id, { description: 'test' });
+      return existing;
+    }
+
+    const res = await this.podcastIndex.podcastById(podexId);
+    return this.db.addPodcast(res.feed);
+  }
+
+  async getPodcastsByUserId(userId: string): Promise<Podcast[]> {
+    const podcastIds = await this.db
+      .getSubscriptionsByUserId(userId)
+      .then((res) => res.map((a) => a.podcastId));
+    console.log('IDS', podcastIds);
+
+    return this.db.getPodcastsByIds(podcastIds);
   }
 
   async getEpisode(podexId: number) {
+    const existing = await this.db.getEpisodeById(podexId);
+    if (existing) {
+      return existing;
+    }
+
     const res = await this.podcastIndex.episodeById(podexId);
-    return toEpisode(res.episode);
+    return this.db.addEpisode(res.episode);
   }
 
-  async getRecentEpisodes(podexId: number, count = 0) {
-    return this.podcastIndex
-      .episodesByFeedId(podexId, { max: count })
-      .then((res) => res.items.map((a) => toEpisode(a)));
+  async getRecentEpisodes(podcastId: number, count = 20): Promise<Episode[]> {
+    const [podcast, episodes] = await Promise.all([
+      this.db.getPodcastById(podcastId),
+      this.db.getEpisodesByPodcastId(podcastId),
+    ]);
+    if (!podcast) return [];
+
+    const isStale = (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs < Date.now();
+    console.log(
+      'stale',
+      isStale,
+      (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs - Date.now()
+    );
+
+    if (!isStale && episodes.length > 0) {
+      return episodes;
+    }
+
+    const res = await this.podcastIndex.episodesByFeedId(podcastId, { max: count });
+    await this.db.addEpisodes(res.items);
+
+    return this.db.getEpisodesByPodcastId(podcastId);
   }
 }

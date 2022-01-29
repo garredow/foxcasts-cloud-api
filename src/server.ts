@@ -4,13 +4,21 @@ import verify from 'fastify-auth0-verify';
 import { resolvers as scalarResolvers, typeDefs as scalarTypeDefs } from 'graphql-scalars';
 import mercurius from 'mercurius';
 import { LoggerOptions } from 'pino';
+import { Database } from './database/db';
 import { resolvers } from './graphql/resolvers';
 import { Category } from './graphql/types/Category';
 import { Episode } from './graphql/types/Episode';
 import { Podcast } from './graphql/types/Podcast';
 import { Query } from './graphql/types/Query';
+import { User } from './graphql/types/User';
 import { config } from './lib/config';
 import { verifyToken } from './lib/jwt';
+import { Data } from './services/data';
+
+const db = new Database();
+db.init();
+
+const dataClient = new Data(db);
 
 const buildContext = async (req: FastifyRequest, reply: FastifyReply) => {
   const res = await verifyToken(req.headers.authorization).catch(() => {});
@@ -22,6 +30,7 @@ const buildContext = async (req: FastifyRequest, reply: FastifyReply) => {
 
   return {
     userId,
+    dataClient,
   };
 };
 
@@ -67,7 +76,7 @@ export function configureServer() {
 
   fastify.register(mercurius, {
     schema: makeExecutableSchema({
-      typeDefs: [...scalarTypeDefs, Query, Podcast, Episode, Category],
+      typeDefs: [...scalarTypeDefs, Query, Podcast, Episode, Category, User],
       resolvers: {
         ...scalarResolvers,
         ...resolvers,

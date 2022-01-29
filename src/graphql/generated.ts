@@ -168,6 +168,7 @@ export type Scalars = {
 
 export type Query = {
   __typename?: 'Query';
+  user: User;
   search: Array<Podcast>;
   podcast?: Maybe<Podcast>;
   episode?: Maybe<Episode>;
@@ -179,17 +180,17 @@ export type QuerysearchArgs = {
 };
 
 export type QuerypodcastArgs = {
-  podexId: Scalars['BigInt'];
+  id: Scalars['BigInt'];
   episodeCount?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryepisodeArgs = {
-  podexId: Scalars['BigInt'];
+  id: Scalars['BigInt'];
 };
 
 export type Podcast = {
   __typename?: 'Podcast';
-  podexId: Scalars['BigInt'];
+  id: Scalars['BigInt'];
   itunesId?: Maybe<Scalars['BigInt']>;
   title: Scalars['String'];
   author: Scalars['String'];
@@ -197,8 +198,8 @@ export type Podcast = {
   artworkUrl: Scalars['String'];
   feedUrl: Scalars['String'];
   episodes: Array<Episode>;
-  createdAt: Scalars['Int'];
-  updatedAt: Scalars['Int'];
+  createdAt: Scalars['BigInt'];
+  updatedAt: Scalars['BigInt'];
 };
 
 export type PodcastepisodesArgs = {
@@ -207,9 +208,9 @@ export type PodcastepisodesArgs = {
 
 export type Episode = {
   __typename?: 'Episode';
-  podexId: Scalars['BigInt'];
-  podcastPodexId: Scalars['BigInt'];
-  date: Scalars['String'];
+  id: Scalars['BigInt'];
+  podcastId: Scalars['BigInt'];
+  date: Scalars['BigInt'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   duration?: Maybe<Scalars['Int']>;
@@ -223,14 +224,25 @@ export type Episode = {
   episodeType?: Maybe<Scalars['String']>;
   imageUrl?: Maybe<Scalars['String']>;
   podcast: Podcast;
-  createdAt: Scalars['Int'];
-  updatedAt: Scalars['Int'];
+  createdAt: Scalars['BigInt'];
+  updatedAt: Scalars['BigInt'];
 };
 
 export type Category = {
   __typename?: 'Category';
-  podexId: Scalars['BigInt'];
+  id: Scalars['BigInt'];
   title: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  avatarUrl?: Maybe<Scalars['String']>;
+  subscriptions: Array<Podcast>;
+  createdAt: Scalars['BigInt'];
+  updatedAt: Scalars['BigInt'];
 };
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -369,6 +381,7 @@ export type ResolversTypes = {
   Podcast: ResolverTypeWrapper<Podcast>;
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
+  User: ResolverTypeWrapper<User>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
@@ -433,6 +446,7 @@ export type ResolversParentTypes = {
   Podcast: Podcast;
   Episode: Episode;
   Category: Category;
+  User: User;
   Boolean: Scalars['Boolean'];
 };
 
@@ -683,6 +697,7 @@ export type QueryResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
 > = {
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   search?: Resolver<
     Array<ResolversTypes['Podcast']>,
     ParentType,
@@ -693,13 +708,13 @@ export type QueryResolvers<
     Maybe<ResolversTypes['Podcast']>,
     ParentType,
     ContextType,
-    RequireFields<QuerypodcastArgs, 'podexId'>
+    RequireFields<QuerypodcastArgs, 'id'>
   >;
   episode?: Resolver<
     Maybe<ResolversTypes['Episode']>,
     ParentType,
     ContextType,
-    RequireFields<QueryepisodeArgs, 'podexId'>
+    RequireFields<QueryepisodeArgs, 'id'>
   >;
 };
 
@@ -707,7 +722,7 @@ export type PodcastResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Podcast'] = ResolversParentTypes['Podcast']
 > = {
-  podexId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   itunesId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -720,8 +735,8 @@ export type PodcastResolvers<
     ContextType,
     RequireFields<PodcastepisodesArgs, 'count'>
   >;
-  createdAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -729,9 +744,9 @@ export type EpisodeResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Episode'] = ResolversParentTypes['Episode']
 > = {
-  podexId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  podcastPodexId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  podcastId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -745,8 +760,8 @@ export type EpisodeResolvers<
   episodeType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   imageUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   podcast?: Resolver<ResolversTypes['Podcast'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -754,8 +769,22 @@ export type CategoryResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']
 > = {
-  podexId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserResolvers<
+  ContextType = MercuriusContext,
+  ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']
+> = {
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subscriptions?: Resolver<Array<ResolversTypes['Podcast']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -817,6 +846,7 @@ export type Resolvers<ContextType = MercuriusContext> = {
   Podcast?: PodcastResolvers<ContextType>;
   Episode?: EpisodeResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
 };
 
 type Loader<TReturn, TObj, TParams, TContext> = (
@@ -840,7 +870,7 @@ export interface Loaders<
   TContext = import('mercurius').MercuriusContext & { reply: import('fastify').FastifyReply }
 > {
   Podcast?: {
-    podexId?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
+    id?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
     itunesId?: LoaderResolver<Maybe<Scalars['BigInt']>, Podcast, {}, TContext>;
     title?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     author?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
@@ -848,14 +878,14 @@ export interface Loaders<
     artworkUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     feedUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     episodes?: LoaderResolver<Array<Episode>, Podcast, PodcastepisodesArgs, TContext>;
-    createdAt?: LoaderResolver<Scalars['Int'], Podcast, {}, TContext>;
-    updatedAt?: LoaderResolver<Scalars['Int'], Podcast, {}, TContext>;
+    createdAt?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
+    updatedAt?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
   };
 
   Episode?: {
-    podexId?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
-    podcastPodexId?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
-    date?: LoaderResolver<Scalars['String'], Episode, {}, TContext>;
+    id?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
+    podcastId?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
+    date?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
     title?: LoaderResolver<Scalars['String'], Episode, {}, TContext>;
     description?: LoaderResolver<Maybe<Scalars['String']>, Episode, {}, TContext>;
     duration?: LoaderResolver<Maybe<Scalars['Int']>, Episode, {}, TContext>;
@@ -869,13 +899,23 @@ export interface Loaders<
     episodeType?: LoaderResolver<Maybe<Scalars['String']>, Episode, {}, TContext>;
     imageUrl?: LoaderResolver<Maybe<Scalars['String']>, Episode, {}, TContext>;
     podcast?: LoaderResolver<Podcast, Episode, {}, TContext>;
-    createdAt?: LoaderResolver<Scalars['Int'], Episode, {}, TContext>;
-    updatedAt?: LoaderResolver<Scalars['Int'], Episode, {}, TContext>;
+    createdAt?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
+    updatedAt?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
   };
 
   Category?: {
-    podexId?: LoaderResolver<Scalars['BigInt'], Category, {}, TContext>;
+    id?: LoaderResolver<Scalars['BigInt'], Category, {}, TContext>;
     title?: LoaderResolver<Scalars['String'], Category, {}, TContext>;
+  };
+
+  User?: {
+    id?: LoaderResolver<Scalars['String'], User, {}, TContext>;
+    name?: LoaderResolver<Maybe<Scalars['String']>, User, {}, TContext>;
+    email?: LoaderResolver<Maybe<Scalars['String']>, User, {}, TContext>;
+    avatarUrl?: LoaderResolver<Maybe<Scalars['String']>, User, {}, TContext>;
+    subscriptions?: LoaderResolver<Array<Podcast>, User, {}, TContext>;
+    createdAt?: LoaderResolver<Scalars['BigInt'], User, {}, TContext>;
+    updatedAt?: LoaderResolver<Scalars['BigInt'], User, {}, TContext>;
   };
 }
 declare module 'mercurius' {
