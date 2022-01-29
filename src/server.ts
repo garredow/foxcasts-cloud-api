@@ -1,9 +1,12 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import verify from 'fastify-auth0-verify';
+import { resolvers as scalarResolvers, typeDefs as scalarTypeDefs } from 'graphql-scalars';
 import mercurius from 'mercurius';
 import { LoggerOptions } from 'pino';
 import { resolvers } from './graphql/resolvers';
+import { Category } from './graphql/types/Category';
+import { Episode } from './graphql/types/Episode';
 import { Podcast } from './graphql/types/Podcast';
 import { Query } from './graphql/types/Query';
 import { config } from './lib/config';
@@ -42,6 +45,8 @@ export function configureServer() {
     logger: logger as any,
   });
 
+  fastify.register(require('fastify-cors'));
+
   fastify.register(verify, {
     domain: config.auth0.domain,
     audience: config.auth0.audience,
@@ -62,8 +67,11 @@ export function configureServer() {
 
   fastify.register(mercurius, {
     schema: makeExecutableSchema({
-      typeDefs: [Query, Podcast],
-      resolvers: resolvers as any,
+      typeDefs: [...scalarTypeDefs, Query, Podcast, Episode, Category],
+      resolvers: {
+        ...scalarResolvers,
+        ...resolvers,
+      } as any,
     }),
     context: buildContext,
     graphiql: true,

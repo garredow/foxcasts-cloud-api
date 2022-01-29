@@ -1,9 +1,6 @@
 import arg from 'arg';
-import dotenv from 'dotenv';
 import mercuriusCodegen from 'mercurius-codegen';
 import { configureServer } from './server';
-
-dotenv.config();
 
 const args = arg({
   '--port': Number,

@@ -1,9 +1,6 @@
-import dotenv from 'dotenv';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { config } from './config';
-
-dotenv.config();
 
 const client = jwksClient({
   jwksUri: `https://${config.auth0.domain}/.well-known/jwks.json`,
