@@ -8,6 +8,7 @@ import { Database } from './database/db';
 import { resolvers } from './graphql/resolvers';
 import { Category } from './graphql/types/Category';
 import { Episode } from './graphql/types/Episode';
+import { Mutation } from './graphql/types/Mutation';
 import { Podcast } from './graphql/types/Podcast';
 import { Query } from './graphql/types/Query';
 import { User } from './graphql/types/User';
@@ -16,8 +17,6 @@ import { verifyToken } from './lib/jwt';
 import { Data } from './services/data';
 
 const db = new Database();
-db.init();
-
 const dataClient = new Data(db);
 
 const buildContext = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -64,8 +63,6 @@ export function configureServer() {
   fastify.register(function (instance, _options, done) {
     instance.get('/verify', {
       handler: function (request, reply) {
-        console.log('USER', request.user);
-
         reply.send(request.user);
       },
       preValidation: instance.authenticate,
@@ -76,7 +73,7 @@ export function configureServer() {
 
   fastify.register(mercurius, {
     schema: makeExecutableSchema({
-      typeDefs: [...scalarTypeDefs, Query, Podcast, Episode, Category, User],
+      typeDefs: [...scalarTypeDefs, Query, Mutation, Podcast, Episode, Category, User],
       resolvers: {
         ...scalarResolvers,
         ...resolvers,

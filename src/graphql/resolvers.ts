@@ -17,6 +17,14 @@ export const resolvers: IResolvers = {
       return res;
     },
   },
+  Mutation: {
+    async subscribe(root, { podcastId }, { dataClient, userId }, info) {
+      return dataClient.subscribe(userId, podcastId);
+    },
+    async unsubscribe(root, { podcastId }, { dataClient, userId }, info) {
+      return dataClient.unsubscribe(userId, podcastId);
+    },
+  },
   User: {
     subscriptions(user, args, { dataClient }, info) {
       return dataClient.getPodcastsByUserId(user.id);

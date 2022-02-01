@@ -49,7 +49,6 @@ export type DbUser = {
 };
 
 export type DbSubscription = {
-  id: number;
   user_id: string;
   podcast_id: number;
   created_at: number;

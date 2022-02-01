@@ -188,6 +188,20 @@ export type QueryepisodeArgs = {
   id: Scalars['BigInt'];
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  subscribe?: Maybe<Scalars['Int']>;
+  unsubscribe?: Maybe<Scalars['Int']>;
+};
+
+export type MutationsubscribeArgs = {
+  podcastId: Scalars['BigInt'];
+};
+
+export type MutationunsubscribeArgs = {
+  podcastId: Scalars['BigInt'];
+};
+
 export type Podcast = {
   __typename?: 'Podcast';
   id: Scalars['BigInt'];
@@ -378,6 +392,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Podcast: ResolverTypeWrapper<Podcast>;
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
@@ -443,6 +458,7 @@ export type ResolversParentTypes = {
   Query: {};
   String: Scalars['String'];
   Int: Scalars['Int'];
+  Mutation: {};
   Podcast: Podcast;
   Episode: Episode;
   Category: Category;
@@ -718,6 +734,24 @@ export type QueryResolvers<
   >;
 };
 
+export type MutationResolvers<
+  ContextType = MercuriusContext,
+  ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']
+> = {
+  subscribe?: Resolver<
+    Maybe<ResolversTypes['Int']>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationsubscribeArgs, 'podcastId'>
+  >;
+  unsubscribe?: Resolver<
+    Maybe<ResolversTypes['Int']>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationunsubscribeArgs, 'podcastId'>
+  >;
+};
+
 export type PodcastResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Podcast'] = ResolversParentTypes['Podcast']
@@ -843,6 +877,7 @@ export type Resolvers<ContextType = MercuriusContext> = {
   Void?: GraphQLScalarType;
   DID?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   Podcast?: PodcastResolvers<ContextType>;
   Episode?: EpisodeResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;

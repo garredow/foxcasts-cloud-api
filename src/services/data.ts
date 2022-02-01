@@ -21,6 +21,14 @@ export class Data {
     return this.db.addUser({ id });
   }
 
+  async subscribe(userId: string, podcastId: number): Promise<number> {
+    return this.db.addSubscription(userId, podcastId);
+  }
+
+  async unsubscribe(userId: string, podcastId: number): Promise<number> {
+    return this.db.deleteSubscription(userId, podcastId);
+  }
+
   async search(query: string, count = 30) {
     const result: SearchResult[] = await this.podcastIndex
       .search(query, { max: count })
@@ -32,7 +40,6 @@ export class Data {
   async getPodcast(podexId: number) {
     const existing = await this.db.getPodcastById(podexId);
     if (existing) {
-      await this.db.updatePodcast(existing.id, { description: 'test' });
       return existing;
     }
 
@@ -40,13 +47,29 @@ export class Data {
     return this.db.addPodcast(res.feed);
   }
 
+  async getPodcastsByIds(ids: number[]): Promise<Podcast[]> {
+    const dbPodcasts = await this.db.getPodcastsByIds(ids);
+
+    const dbIds = dbPodcasts.map((a) => a.id);
+    const otherIds = ids.filter((a) => !dbIds.includes(a));
+
+    if (otherIds.length > 0) {
+      for (const id of otherIds) {
+        const piRes = await this.podcastIndex.podcastById(id);
+        const res = await this.db.addPodcast(piRes.feed);
+        dbPodcasts.push(res);
+      }
+    }
+
+    return dbPodcasts;
+  }
+
   async getPodcastsByUserId(userId: string): Promise<Podcast[]> {
     const podcastIds = await this.db
       .getSubscriptionsByUserId(userId)
       .then((res) => res.map((a) => a.podcastId));
-    console.log('IDS', podcastIds);
 
-    return this.db.getPodcastsByIds(podcastIds);
+    return this.getPodcastsByIds(podcastIds);
   }
 
   async getEpisode(podexId: number) {
@@ -67,12 +90,6 @@ export class Data {
     if (!podcast) return [];
 
     const isStale = (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs < Date.now();
-    console.log(
-      'stale',
-      isStale,
-      (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs - Date.now()
-    );
-
     if (!isStale && episodes.length > 0) {
       return episodes;
     }
