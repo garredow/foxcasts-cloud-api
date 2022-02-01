@@ -34,6 +34,9 @@ export const resolvers: IResolvers = {
     episodes(podcast, { count }, { dataClient }, info) {
       return count > 0 ? dataClient.getRecentEpisodes(podcast.id, count) : [];
     },
+    isSubscribed(podcast, args, { dataClient, userId }, info) {
+      return dataClient.checkIfSubscribed(userId, podcast.id);
+    },
   },
   Episode: {
     podcast(episode, args, { dataClient }) {

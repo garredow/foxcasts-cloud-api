@@ -70,14 +70,12 @@ export class Database {
 
   async addPodcast(podcast: PIApiPodcast): Promise<Podcast> {
     const dbitem = toSnakeCase<DbPodcast>(toPodcast(podcast));
-    const result = await this.db<DbPodcast>(Table.Podcasts)
+    return this.db<DbPodcast>(Table.Podcasts)
       .insert(dbitem)
       .onConflict()
       .ignore()
       .returning('*')
       .then((res) => toCamelCase(res[0]));
-
-    return toCamelCase(result);
   }
 
   async getPodcastById(id: number): Promise<Podcast | undefined> {
@@ -196,6 +194,13 @@ export class Database {
       .delete();
 
     return res;
+  }
+
+  getSubscription(userId: string, podcastId: number): Promise<Subscription | undefined> {
+    return this.db<DbSubscription>(Table.Subscriptions)
+      .where({ user_id: userId, podcast_id: podcastId })
+      .first()
+      .then((res) => (res ? toCamelCase<Subscription>(res) : res));
   }
 
   getSubscriptionsByUserId(userId: string): Promise<Subscription[]> {

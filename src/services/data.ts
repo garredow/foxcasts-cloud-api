@@ -29,6 +29,11 @@ export class Data {
     return this.db.deleteSubscription(userId, podcastId);
   }
 
+  async checkIfSubscribed(userId: string, podcastId: number): Promise<boolean> {
+    const sub = this.db.getSubscription(userId, podcastId);
+    return !!sub;
+  }
+
   async search(query: string, count = 30) {
     const result: SearchResult[] = await this.podcastIndex
       .search(query, { max: count })

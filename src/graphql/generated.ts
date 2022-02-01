@@ -212,6 +212,7 @@ export type Podcast = {
   artworkUrl: Scalars['String'];
   feedUrl: Scalars['String'];
   episodes: Array<Episode>;
+  isSubscribed: Scalars['Boolean'];
   createdAt: Scalars['BigInt'];
   updatedAt: Scalars['BigInt'];
 };
@@ -394,10 +395,10 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
   Podcast: ResolverTypeWrapper<Podcast>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
   User: ResolverTypeWrapper<User>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -460,10 +461,10 @@ export type ResolversParentTypes = {
   Int: Scalars['Int'];
   Mutation: {};
   Podcast: Podcast;
+  Boolean: Scalars['Boolean'];
   Episode: Episode;
   Category: Category;
   User: User;
-  Boolean: Scalars['Boolean'];
 };
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -769,6 +770,7 @@ export type PodcastResolvers<
     ContextType,
     RequireFields<PodcastepisodesArgs, 'count'>
   >;
+  isSubscribed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -913,6 +915,7 @@ export interface Loaders<
     artworkUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     feedUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     episodes?: LoaderResolver<Array<Episode>, Podcast, PodcastepisodesArgs, TContext>;
+    isSubscribed?: LoaderResolver<Scalars['Boolean'], Podcast, {}, TContext>;
     createdAt?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
     updatedAt?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
   };

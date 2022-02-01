@@ -9,9 +9,9 @@ export const Podcast = gql`
     description: String
     artworkUrl: String!
     feedUrl: String!
-
     episodes(count: Int!): [Episode!]!
     # categories: [Category!]!
+    isSubscribed: Boolean!
 
     createdAt: BigInt!
     updatedAt: BigInt!
