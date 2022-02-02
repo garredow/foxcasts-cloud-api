@@ -247,6 +247,19 @@ export class Database {
       .first()
       .then((res) => (res ? toCamelCase(res) : res));
   }
+
+  // Health
+
+  async testLatency() {
+    try {
+      const before = Date.now();
+      await this.db.raw('SELECT 1');
+      return Date.now() - before;
+    } catch (err: any) {
+      console.error('Failed to connect to the database', err?.message);
+      return 0;
+    }
+  }
 }
 
 function toSnakeCase<TResult>(source: any): TResult {

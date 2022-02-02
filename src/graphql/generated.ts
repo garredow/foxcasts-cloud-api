@@ -172,6 +172,7 @@ export type Query = {
   search: Array<Podcast>;
   podcast?: Maybe<Podcast>;
   episode?: Maybe<Episode>;
+  health: Health;
 };
 
 export type QuerysearchArgs = {
@@ -289,6 +290,14 @@ export type User = {
   subscriptions: Array<Podcast>;
   createdAt: Scalars['BigInt'];
   updatedAt: Scalars['BigInt'];
+};
+
+export type Health = {
+  __typename?: 'Health';
+  version: Scalars['String'];
+  uptime: Scalars['BigInt'];
+  date: Scalars['String'];
+  databaseLatency: Scalars['Int'];
 };
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -432,6 +441,7 @@ export type ResolversTypes = {
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
   User: ResolverTypeWrapper<User>;
+  Health: ResolverTypeWrapper<Health>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -500,6 +510,7 @@ export type ResolversParentTypes = {
   Episode: Episode;
   Category: Category;
   User: User;
+  Health: Health;
 };
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -768,6 +779,7 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryepisodeArgs, 'id'>
   >;
+  health?: Resolver<ResolversTypes['Health'], ParentType, ContextType>;
 };
 
 export type MutationResolvers<
@@ -897,6 +909,17 @@ export type UserResolvers<
   isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type HealthResolvers<
+  ContextType = MercuriusContext,
+  ParentType extends ResolversParentTypes['Health'] = ResolversParentTypes['Health']
+> = {
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uptime?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  databaseLatency?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = MercuriusContext> = {
   Date?: GraphQLScalarType;
   Time?: GraphQLScalarType;
@@ -959,6 +982,7 @@ export type Resolvers<ContextType = MercuriusContext> = {
   Episode?: EpisodeResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  Health?: HealthResolvers<ContextType>;
 };
 
 type Loader<TReturn, TObj, TParams, TContext> = (
@@ -1048,6 +1072,13 @@ export interface Loaders<
     subscriptions?: LoaderResolver<Array<Podcast>, User, {}, TContext>;
     createdAt?: LoaderResolver<Scalars['BigInt'], User, {}, TContext>;
     updatedAt?: LoaderResolver<Scalars['BigInt'], User, {}, TContext>;
+  };
+
+  Health?: {
+    version?: LoaderResolver<Scalars['String'], Health, {}, TContext>;
+    uptime?: LoaderResolver<Scalars['BigInt'], Health, {}, TContext>;
+    date?: LoaderResolver<Scalars['String'], Health, {}, TContext>;
+    databaseLatency?: LoaderResolver<Scalars['Int'], Health, {}, TContext>;
   };
 }
 declare module 'mercurius' {

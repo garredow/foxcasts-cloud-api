@@ -9,6 +9,7 @@ import { resolvers } from './graphql/resolvers';
 import { Artwork } from './graphql/types/Artwork';
 import { Category } from './graphql/types/Category';
 import { Episode } from './graphql/types/Episode';
+import { Health } from './graphql/types/Health';
 import { Mutation } from './graphql/types/Mutation';
 import { Palette } from './graphql/types/Palette';
 import { Podcast } from './graphql/types/Podcast';
@@ -85,6 +86,7 @@ export function configureServer() {
         Episode,
         Category,
         User,
+        Health,
       ],
       resolvers: {
         ...scalarResolvers,

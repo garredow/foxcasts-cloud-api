@@ -18,6 +18,9 @@ export const resolvers: IResolvers = {
       const res = await dataClient.episode.getById(id);
       return res;
     },
+    async health(root, args, { dataClient }, info) {
+      return dataClient.meta.health();
+    },
   },
   Mutation: {
     async subscribe(root, { podcastId }, { dataClient, userId }, info) {

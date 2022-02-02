@@ -4,8 +4,9 @@ import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
 import { Database } from '../database/db';
 import { config } from '../lib/config';
-import { Episode, Palette, Podcast, SearchResult, User } from '../models';
+import { Episode, Health, Palette, Podcast, SearchResult, User } from '../models';
 import { toSearchResult } from '../utils/mappers';
+const { version: apiVersion } = require('../../package.json');
 
 export class Data {
   db: Database;
@@ -156,6 +157,17 @@ export class Data {
   user = {
     getById: (id: string): Promise<User> => {
       return this.db.addUser({ id });
+    },
+  };
+
+  meta = {
+    health: async (): Promise<Health> => {
+      return {
+        version: apiVersion,
+        uptime: Math.floor(process.uptime() * 1000),
+        date: new Date().toUTCString(),
+        databaseLatency: await this.db.testLatency(),
+      };
     },
   };
 }
