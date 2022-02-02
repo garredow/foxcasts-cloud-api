@@ -13,7 +13,6 @@ export type Episode = {
   season?: number;
   episode?: number;
   episodeType?: string;
-  imageUrl?: string;
   createdAt: number;
   updatedAt: number;
 };

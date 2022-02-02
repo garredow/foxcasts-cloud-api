@@ -6,6 +6,7 @@ import mercurius from 'mercurius';
 import { LoggerOptions } from 'pino';
 import { Database } from './database/db';
 import { resolvers } from './graphql/resolvers';
+import { Artwork } from './graphql/types/Artwork';
 import { Category } from './graphql/types/Category';
 import { Episode } from './graphql/types/Episode';
 import { Mutation } from './graphql/types/Mutation';
@@ -74,7 +75,17 @@ export function configureServer() {
 
   fastify.register(mercurius, {
     schema: makeExecutableSchema({
-      typeDefs: [...scalarTypeDefs, Query, Mutation, Palette, Podcast, Episode, Category, User],
+      typeDefs: [
+        ...scalarTypeDefs,
+        Query,
+        Mutation,
+        Artwork,
+        Palette,
+        Podcast,
+        Episode,
+        Category,
+        User,
+      ],
       resolvers: {
         ...scalarResolvers,
         ...resolvers,

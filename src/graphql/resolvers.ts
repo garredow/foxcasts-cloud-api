@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { IResolvers } from 'mercurius';
 import { Podcast } from '../models';
 
@@ -41,8 +42,8 @@ export const resolvers: IResolvers = {
     isSubscribed(podcast, args, { dataClient, userId }, info) {
       return dataClient.podcast.checkIfSubscribed(userId, podcast.id);
     },
-    artworkPalette(podcast, args, { dataClient }, info) {
-      return dataClient.artwork.getPalette(podcast.id);
+    artwork(podcast, args, context, info) {
+      return { podcastId: podcast.id };
     },
   },
   Episode: {
@@ -52,6 +53,24 @@ export const resolvers: IResolvers = {
     },
     progress(episode, args, { dataClient, userId }) {
       return dataClient.episode.getUserProgress(userId, episode.id);
+    },
+    artwork(episode, args, context, info) {
+      return { podcastId: episode.podcastId };
+    },
+  },
+  Artwork: {
+    url(obj, args, { dataClient }, info) {
+      return dataClient.artwork.getUrl(obj.podcastId);
+    },
+    data(obj, { size, blur }, { dataClient }, info) {
+      return dataClient.artwork.getImageData(
+        obj.podcastId,
+        _.clamp(size ?? 256, 32, 1024),
+        _.clamp(blur ?? 0, 0, 50)
+      );
+    },
+    palette(obj, args, { dataClient }, info) {
+      return dataClient.artwork.getPalette(obj.podcastId);
     },
   },
 };

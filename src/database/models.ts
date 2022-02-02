@@ -20,7 +20,6 @@ export type DbEpisode = {
   season?: number;
   episode?: number;
   episode_type?: string;
-  image_url?: string;
   created_at: number;
   updated_at: number;
 };

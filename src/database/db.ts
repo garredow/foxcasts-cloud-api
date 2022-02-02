@@ -300,7 +300,6 @@ function toEpisode(source: PIApiEpisodeInfo): Episode {
     season: source.season,
     episode: source.episode ?? undefined,
     episodeType: source.episodeType ?? undefined,
-    imageUrl: source.image,
     createdAt: new Date().valueOf(),
     updatedAt: new Date().valueOf(),
   };
@@ -309,17 +308,6 @@ function toEpisode(source: PIApiEpisodeInfo): Episode {
 }
 
 function toCategory(source: Pick<Category, 'id' | 'name'>): Category {
-  const result: Category = {
-    id: source.id,
-    name: source.name,
-    createdAt: new Date().valueOf(),
-    updatedAt: new Date().valueOf(),
-  };
-
-  return result;
-}
-
-function toSubscription(source: any): Category {
   const result: Category = {
     id: source.id,
     name: source.name,

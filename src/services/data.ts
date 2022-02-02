@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import Vibrant from 'node-vibrant';
 import PodcastIndexClient from 'podcastdx-client';
+import sharp from 'sharp';
 import { Database } from '../database/db';
 import { config } from '../lib/config';
 import { Episode, Palette, Podcast, SearchResult, User } from '../models';
@@ -20,6 +21,26 @@ export class Data {
   }
 
   artwork = {
+    getUrl: async (podcastId: number): Promise<string | undefined> => {
+      const podcast = await this.db.getPodcastById(podcastId);
+      return podcast?.artworkUrl;
+    },
+    getImageData: async (
+      podcastId: number,
+      size: number,
+      blur: number
+    ): Promise<string | undefined> => {
+      const podcast = await this.podcast.getById(podcastId);
+      if (!podcast || !podcast.artworkUrl) return;
+
+      const image = await fetch(podcast.artworkUrl).then((res) => res.buffer());
+      const artwork = sharp(image).resize(size);
+      if (blur > 0) {
+        artwork.blur(blur);
+      }
+      const result = await artwork.png().toBuffer();
+      return `data:image/png;base64,${await result.toString('base64')}`;
+    },
     getPalette: async (podcastId: number): Promise<Palette | undefined> => {
       const existing = await this.db.getPaletteByPodcastId(podcastId);
       if (existing) return existing;

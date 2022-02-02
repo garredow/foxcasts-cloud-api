@@ -17,10 +17,8 @@ export const Episode = gql`
     season: Int
     episode: Int
     episodeType: String
-    imageUrl: String
-
     podcast: Podcast!
-
+    artwork: Artwork!
     createdAt: BigInt!
     updatedAt: BigInt!
   }

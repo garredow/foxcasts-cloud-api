@@ -89,7 +89,6 @@ exports.up = async function (knex) {
         table.integer('season').nullable();
         table.integer('episode').nullable();
         table.string('episode_type').nullable();
-        table.string('image_url').nullable();
         table.bigInteger('created_at').defaultTo(Date.now());
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
