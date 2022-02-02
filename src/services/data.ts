@@ -1,7 +1,9 @@
+import fetch from 'node-fetch';
+import Vibrant from 'node-vibrant';
 import PodcastIndexClient from 'podcastdx-client';
 import { Database } from '../database/db';
 import { config } from '../lib/config';
-import { Episode, Podcast, SearchResult, User } from '../models';
+import { Episode, Palette, Podcast, SearchResult, User } from '../models';
 import { toSearchResult } from '../utils/mappers';
 
 export class Data {
@@ -42,13 +44,13 @@ export class Data {
     return result;
   }
 
-  async getPodcast(podexId: number) {
-    const existing = await this.db.getPodcastById(podexId);
+  async getPodcast(id: number) {
+    const existing = await this.db.getPodcastById(id);
     if (existing) {
       return existing;
     }
 
-    const res = await this.podcastIndex.podcastById(podexId);
+    const res = await this.podcastIndex.podcastById(id);
     return this.db.addPodcast(res.feed);
   }
 
@@ -77,13 +79,35 @@ export class Data {
     return this.getPodcastsByIds(podcastIds);
   }
 
-  async getEpisode(podexId: number) {
-    const existing = await this.db.getEpisodeById(podexId);
+  async getPodcastPalette(podcastId: number): Promise<Palette> {
+    const existing = await this.db.getPaletteByPodcastId(podcastId);
+    if (existing) return existing;
+
+    const podcast = await this.getPodcast(podcastId);
+    const image = await fetch(podcast.artworkUrl).then((res) => res.buffer());
+    const palette = await Vibrant.from(image).getPalette();
+
+    const result = {
+      darkMuted: palette.DarkMuted?.hex,
+      darkVibrant: palette.DarkVibrant?.hex,
+      lightMuted: palette.LightMuted?.hex,
+      lightVibrant: palette.LightVibrant?.hex,
+      muted: palette.Muted?.hex,
+      vibrant: palette.Vibrant?.hex,
+    };
+
+    await this.db.addPalette(podcastId, result);
+
+    return result;
+  }
+
+  async getEpisode(id: number) {
+    const existing = await this.db.getEpisodeById(id);
     if (existing) {
       return existing;
     }
 
-    const res = await this.podcastIndex.episodeById(podexId);
+    const res = await this.podcastIndex.episodeById(id);
     return this.db.addEpisode(res.episode);
   }
 

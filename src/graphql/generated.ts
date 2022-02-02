@@ -208,6 +208,18 @@ export type MutationupdateProgressArgs = {
   progress: Scalars['Int'];
 };
 
+export type Palette = {
+  __typename?: 'Palette';
+  darkMuted?: Maybe<Scalars['String']>;
+  darkVibrant?: Maybe<Scalars['String']>;
+  lightMuted?: Maybe<Scalars['String']>;
+  lightVibrant?: Maybe<Scalars['String']>;
+  muted?: Maybe<Scalars['String']>;
+  vibrant?: Maybe<Scalars['String']>;
+  createdAt: Scalars['BigInt'];
+  updatedAt: Scalars['BigInt'];
+};
+
 export type Podcast = {
   __typename?: 'Podcast';
   id: Scalars['BigInt'];
@@ -216,6 +228,7 @@ export type Podcast = {
   author: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   artworkUrl: Scalars['String'];
+  artworkPalette: Palette;
   feedUrl: Scalars['String'];
   episodes: Array<Episode>;
   isSubscribed: Scalars['Boolean'];
@@ -402,6 +415,7 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Palette: ResolverTypeWrapper<Palette>;
   Podcast: ResolverTypeWrapper<Podcast>;
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
@@ -468,6 +482,7 @@ export type ResolversParentTypes = {
   Int: Scalars['Int'];
   Mutation: {};
   Boolean: Scalars['Boolean'];
+  Palette: Palette;
   Podcast: Podcast;
   Episode: Episode;
   Category: Category;
@@ -766,6 +781,21 @@ export type MutationResolvers<
   >;
 };
 
+export type PaletteResolvers<
+  ContextType = MercuriusContext,
+  ParentType extends ResolversParentTypes['Palette'] = ResolversParentTypes['Palette']
+> = {
+  darkMuted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  darkVibrant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lightMuted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lightVibrant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  muted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  vibrant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type PodcastResolvers<
   ContextType = MercuriusContext,
   ParentType extends ResolversParentTypes['Podcast'] = ResolversParentTypes['Podcast']
@@ -776,6 +806,7 @@ export type PodcastResolvers<
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   artworkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  artworkPalette?: Resolver<ResolversTypes['Palette'], ParentType, ContextType>;
   feedUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   episodes?: Resolver<
     Array<ResolversTypes['Episode']>,
@@ -894,6 +925,7 @@ export type Resolvers<ContextType = MercuriusContext> = {
   DID?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Palette?: PaletteResolvers<ContextType>;
   Podcast?: PodcastResolvers<ContextType>;
   Episode?: EpisodeResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
@@ -920,6 +952,17 @@ type LoaderResolver<TReturn, TObj, TParams, TContext> =
 export interface Loaders<
   TContext = import('mercurius').MercuriusContext & { reply: import('fastify').FastifyReply }
 > {
+  Palette?: {
+    darkMuted?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    darkVibrant?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    lightMuted?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    lightVibrant?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    muted?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    vibrant?: LoaderResolver<Maybe<Scalars['String']>, Palette, {}, TContext>;
+    createdAt?: LoaderResolver<Scalars['BigInt'], Palette, {}, TContext>;
+    updatedAt?: LoaderResolver<Scalars['BigInt'], Palette, {}, TContext>;
+  };
+
   Podcast?: {
     id?: LoaderResolver<Scalars['BigInt'], Podcast, {}, TContext>;
     itunesId?: LoaderResolver<Maybe<Scalars['BigInt']>, Podcast, {}, TContext>;
@@ -927,6 +970,7 @@ export interface Loaders<
     author?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     description?: LoaderResolver<Maybe<Scalars['String']>, Podcast, {}, TContext>;
     artworkUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
+    artworkPalette?: LoaderResolver<Palette, Podcast, {}, TContext>;
     feedUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     episodes?: LoaderResolver<Array<Episode>, Podcast, PodcastepisodesArgs, TContext>;
     isSubscribed?: LoaderResolver<Scalars['Boolean'], Podcast, {}, TContext>;

@@ -40,6 +40,9 @@ export const resolvers: IResolvers = {
     isSubscribed(podcast, args, { dataClient, userId }, info) {
       return dataClient.checkIfSubscribed(userId, podcast.id);
     },
+    artworkPalette(podcast, args, { dataClient }, info) {
+      return dataClient.getPodcastPalette(podcast.id);
+    },
   },
   Episode: {
     podcast(episode, args, { dataClient }) {

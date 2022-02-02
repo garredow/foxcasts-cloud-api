@@ -3,21 +3,22 @@ import _ from 'lodash';
 import pg from 'pg';
 import { PIApiEpisodeInfo, PIApiPodcast } from 'podcastdx-client/dist/src/types';
 import { config } from '../lib/config';
-import { Category, Episode, Podcast, Subscription, User } from '../models';
-import { DbEpisode, DbPodcast, DbProgress, DbSubscription, DbUser } from './models';
+import { Category, Episode, Palette, Podcast, Subscription, User } from '../models';
+import { DbEpisode, DbPalette, DbPodcast, DbProgress, DbSubscription, DbUser } from './models';
 
 pg.types.setTypeParser(pg.types.builtins.INT8, (value: string) => {
   return parseInt(value);
 });
 
 enum Table {
-  Users = 'users',
-  Podcasts = 'podcasts',
-  Episodes = 'episodes',
-  Categories = 'categories',
-  Subscriptions = 'subscriptions',
+  User = 'user',
+  Podcast = 'podcast',
+  Episode = 'episode',
+  Category = 'category',
+  Subscription = 'subscription',
   Progress = 'progress',
-  Chapters = 'chapters',
+  Chapter = 'chapter',
+  Palette = 'palette',
 }
 
 export class Database {
@@ -40,14 +41,14 @@ export class Database {
   // User
 
   async getUserById(id: string): Promise<User | undefined> {
-    const result = await this.db<DbUser>(Table.Users).where({ id }).first();
+    const result = await this.db<DbUser>(Table.User).where({ id }).first();
     return result ? toCamelCase<User>(result) : result;
   }
 
   async addUser(user: Omit<User, 'createdAt' | 'updatedAt'>): Promise<User> {
     const dbItem = toSnakeCase<DbUser>(user);
 
-    await this.db<DbUser>(Table.Users)
+    await this.db<DbUser>(Table.User)
       .insert({
         ...dbItem,
         created_at: new Date().valueOf(),
@@ -63,14 +64,14 @@ export class Database {
 
   async updateUser(userId: string, data: Partial<User>): Promise<void> {
     const dbData = toSnakeCase<Partial<DbUser>>(data);
-    return this.db<DbUser>(Table.Users).where({ id: userId }).update(dbData);
+    return this.db<DbUser>(Table.User).where({ id: userId }).update(dbData);
   }
 
   // Podcasts
 
   async addPodcast(podcast: PIApiPodcast): Promise<Podcast> {
     const dbitem = toSnakeCase<DbPodcast>(toPodcast(podcast));
-    return this.db<DbPodcast>(Table.Podcasts)
+    return this.db<DbPodcast>(Table.Podcast)
       .insert(dbitem)
       .onConflict()
       .ignore()
@@ -79,12 +80,12 @@ export class Database {
   }
 
   async getPodcastById(id: number): Promise<Podcast | undefined> {
-    const result = await this.db<DbPodcast>(Table.Podcasts).where({ id }).first();
+    const result = await this.db<DbPodcast>(Table.Podcast).where({ id }).first();
     return result ? toCamelCase<Podcast>(result) : result;
   }
 
   async getPodcastsByIds(ids: number[]): Promise<Podcast[]> {
-    const result = await this.db<DbPodcast>(Table.Podcasts).whereIn('id', ids);
+    const result = await this.db<DbPodcast>(Table.Podcast).whereIn('id', ids);
     return result.map((a) => toCamelCase<Podcast>(a));
   }
 
@@ -98,23 +99,23 @@ export class Database {
 
   updatePodcast(id: number, data: Partial<Podcast>): Promise<void> {
     const dbData = toSnakeCase<Partial<DbPodcast>>(data);
-    return this.db<DbPodcast>(Table.Podcasts).where({ id }).update(dbData);
+    return this.db<DbPodcast>(Table.Podcast).where({ id }).update(dbData);
   }
 
   // Episodes
 
   async getEpisodeById(id: number): Promise<Episode | undefined> {
-    const result = await this.db<DbEpisode>(Table.Episodes).where({ id }).first();
+    const result = await this.db<DbEpisode>(Table.Episode).where({ id }).first();
     return result ? toCamelCase<Episode>(result) : result;
   }
 
   async getEpisodesByIds(ids: number[]): Promise<Episode[]> {
-    const result = await this.db<DbEpisode>(Table.Episodes).whereIn('id', ids);
+    const result = await this.db<DbEpisode>(Table.Episode).whereIn('id', ids);
     return result.map((a) => toCamelCase<Episode>(a));
   }
 
   async getEpisodesByPodcastId(podcastId: number, count = 20): Promise<Episode[]> {
-    const result = await this.db<DbEpisode>(Table.Episodes)
+    const result = await this.db<DbEpisode>(Table.Episode)
       .orderBy('date', 'desc')
       .limit(count)
       .where({ podcast_id: podcastId });
@@ -122,7 +123,7 @@ export class Database {
   }
 
   addEpisode(episode: PIApiEpisodeInfo): Promise<Episode> {
-    return this.db<DbEpisode>(Table.Episodes)
+    return this.db<DbEpisode>(Table.Episode)
       .insert(toEpisode(episode))
       .onConflict()
       .merge()
@@ -138,7 +139,7 @@ export class Database {
 
     if (newEpisodes.length > 0) {
       await this.db.batchInsert<DbEpisode>(
-        Table.Episodes,
+        Table.Episode,
         newEpisodes.map((a) => toSnakeCase(toEpisode(a))),
         100
       );
@@ -163,15 +164,15 @@ export class Database {
   // Categories
 
   getCategoryById(id: number): Promise<Category | undefined> {
-    return this.db<Category>(Table.Categories).where({ id }).first();
+    return this.db<Category>(Table.Category).where({ id }).first();
   }
 
   getCategoriesByIds(ids: number[]): Promise<Category[]> {
-    return this.db(Table.Categories).whereIn('id', ids);
+    return this.db(Table.Category).whereIn('id', ids);
   }
 
   getAllCategories(): Promise<Category[]> {
-    return this.db<Category>(Table.Categories);
+    return this.db<Category>(Table.Category);
   }
 
   async addCategories(categories: Pick<Category, 'id' | 'name'>[]): Promise<void> {
@@ -182,7 +183,7 @@ export class Database {
 
     if (newCategories.length > 0) {
       await this.db.batchInsert<Category>(
-        Table.Categories,
+        Table.Category,
         newCategories.map((a) => toCategory(a))
       );
     }
@@ -191,7 +192,7 @@ export class Database {
   // Subscriptions
 
   async addSubscription(userId: string, podcastId: number): Promise<number> {
-    const res = await this.db<DbSubscription>(Table.Subscriptions)
+    const res = await this.db<DbSubscription>(Table.Subscription)
       .insert({
         user_id: userId,
         podcast_id: podcastId,
@@ -204,7 +205,7 @@ export class Database {
   }
 
   async deleteSubscription(userId: string, podcastId: number): Promise<number> {
-    const res = await this.db<DbSubscription>(Table.Subscriptions)
+    const res = await this.db<DbSubscription>(Table.Subscription)
       .where({ user_id: userId, podcast_id: podcastId })
       .delete();
 
@@ -212,16 +213,39 @@ export class Database {
   }
 
   getSubscription(userId: string, podcastId: number): Promise<Subscription | undefined> {
-    return this.db<DbSubscription>(Table.Subscriptions)
+    return this.db<DbSubscription>(Table.Subscription)
       .where({ user_id: userId, podcast_id: podcastId })
       .first()
       .then((res) => (res ? toCamelCase<Subscription>(res) : res));
   }
 
   getSubscriptionsByUserId(userId: string): Promise<Subscription[]> {
-    return this.db<DbSubscription>(Table.Subscriptions)
+    return this.db<DbSubscription>(Table.Subscription)
       .where({ user_id: userId })
       .then((res) => res.map((a) => toCamelCase<Subscription>(a)));
+  }
+
+  // Palette
+
+  async addPalette(podcastId: number, palette: Palette): Promise<Palette> {
+    await this.db<DbPalette>(Table.Palette)
+      .insert(
+        toSnakeCase({
+          podcastId,
+          ...palette,
+        })
+      )
+      .onConflict('podcast_id')
+      .merge();
+
+    return palette;
+  }
+
+  async getPaletteByPodcastId(podcastId: number): Promise<Palette | undefined> {
+    return this.db<DbPalette>(Table.Palette)
+      .where({ podcast_id: podcastId })
+      .first()
+      .then((res) => (res ? toCamelCase(res) : res));
   }
 }
 

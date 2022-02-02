@@ -9,6 +9,7 @@ import { resolvers } from './graphql/resolvers';
 import { Category } from './graphql/types/Category';
 import { Episode } from './graphql/types/Episode';
 import { Mutation } from './graphql/types/Mutation';
+import { Palette } from './graphql/types/Palette';
 import { Podcast } from './graphql/types/Podcast';
 import { Query } from './graphql/types/Query';
 import { User } from './graphql/types/User';
@@ -73,7 +74,7 @@ export function configureServer() {
 
   fastify.register(mercurius, {
     schema: makeExecutableSchema({
-      typeDefs: [...scalarTypeDefs, Query, Mutation, Podcast, Episode, Category, User],
+      typeDefs: [...scalarTypeDefs, Query, Mutation, Palette, Podcast, Episode, Category, User],
       resolvers: {
         ...scalarResolvers,
         ...resolvers,

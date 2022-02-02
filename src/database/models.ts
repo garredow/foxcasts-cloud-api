@@ -62,3 +62,15 @@ export type DbProgress = {
   created_at: number;
   updated_at: number;
 };
+
+export type DbPalette = {
+  podcast_id: number;
+  dark_muted: string;
+  dark_vibrant: string;
+  light_muted: string;
+  light_vibrant: string;
+  muted: string;
+  vibrant: string;
+  created_at: number;
+  updated_at: number;
+};

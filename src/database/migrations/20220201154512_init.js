@@ -1,11 +1,12 @@
 const table = {
-  users: 'users',
-  podcasts: 'podcasts',
-  episodes: 'episodes',
-  categories: 'categories',
-  subscriptions: 'subscriptions',
+  user: 'user',
+  podcast: 'podcast',
+  episode: 'episode',
+  category: 'category',
+  subscription: 'subscription',
   progress: 'progress',
-  chapters: 'chapters',
+  chapter: 'chapter',
+  palette: 'palette',
 };
 
 /**
@@ -33,10 +34,10 @@ exports.up = async function (knex) {
   `;
 
   await knex.schema
-    .hasTable(table.users)
+    .hasTable(table.user)
     .then((exists) => {
       if (exists) return;
-      return knex.schema.createTable(table.users, (table) => {
+      return knex.schema.createTable(table.user, (table) => {
         table.string('id').unique().index().primary();
         table.string('name');
         table.string('email');
@@ -45,14 +46,14 @@ exports.up = async function (knex) {
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
-    .catch((err) => console.error(`Failed to create ${table.users}`, err?.message));
+    .catch((err) => console.error(`Failed to create ${table.user}`, err?.message));
 
   await knex.schema
-    .hasTable(table.podcasts)
+    .hasTable(table.podcast)
     .then((exists) => {
       if (exists) return;
       return knex.schema
-        .createTable(table.podcasts, (table) => {
+        .createTable(table.podcast, (table) => {
           table.bigInteger('id').unique().index().primary();
           table.bigInteger('itunes_id').unique().index().nullable();
           table.string('title');
@@ -65,15 +66,15 @@ exports.up = async function (knex) {
           table.bigInteger('created_at').defaultTo(Date.now());
           table.bigInteger('updated_at').defaultTo(Date.now());
         })
-        .then(() => knex.raw(autoUpdate(table.podcasts)));
+        .then(() => knex.raw(autoUpdate(table.podcast)));
     })
-    .catch((err) => console.error(`Failed to create ${table.podcasts}`, err?.message));
+    .catch((err) => console.error(`Failed to create ${table.podcast}`, err?.message));
 
   await knex.schema
-    .hasTable(table.episodes)
+    .hasTable(table.episode)
     .then((exists) => {
       if (exists) return;
-      return knex.schema.createTable(table.episodes, (table) => {
+      return knex.schema.createTable(table.episode, (table) => {
         table.bigInteger('id').unique().index().primary();
         table.bigInteger('podcast_id').index();
         table.bigInteger('date').index();
@@ -93,26 +94,26 @@ exports.up = async function (knex) {
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
-    .catch((err) => console.error(`Failed to create ${table.episodes}`, err?.message));
+    .catch((err) => console.error(`Failed to create ${table.episode}`, err?.message));
 
   await knex.schema
-    .hasTable(table.categories)
+    .hasTable(table.category)
     .then((exists) => {
       if (exists) return;
-      return knex.schema.createTable(table.categories, (table) => {
+      return knex.schema.createTable(table.category, (table) => {
         table.bigInteger('id').unique().index().primary();
         table.string('title');
         table.bigInteger('created_at').defaultTo(Date.now());
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
-    .catch((err) => console.error(`Failed to create ${table.categories}`, err?.message));
+    .catch((err) => console.error(`Failed to create ${table.category}`, err?.message));
 
   await knex.schema
-    .hasTable(table.subscriptions)
+    .hasTable(table.subscription)
     .then((exists) => {
       if (exists) return;
-      return knex.schema.createTable(table.subscriptions, (table) => {
+      return knex.schema.createTable(table.subscription, (table) => {
         table.primary(['user_id', 'podcast_id']);
         table.string('user_id').index();
         table.bigInteger('podcast_id');
@@ -120,7 +121,7 @@ exports.up = async function (knex) {
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
-    .catch((err) => console.error(`Failed to create ${table.subscriptions}`, err?.message));
+    .catch((err) => console.error(`Failed to create ${table.subscription}`, err?.message));
 
   await knex.schema
     .hasTable(table.progress)
@@ -131,11 +132,29 @@ exports.up = async function (knex) {
         table.string('user_id').index();
         table.bigInteger('episode_id').index();
         table.integer('current_time');
-        table.timestamp('created_at').defaultTo(Date.now());
+        table.bigInteger('created_at').defaultTo(Date.now());
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
     .catch((err) => console.error(`Failed to create ${table.progress}`, err?.message));
+
+  await knex.schema
+    .hasTable(table.palette)
+    .then((exists) => {
+      if (exists) return;
+      return knex.schema.createTable(table.palette, (table) => {
+        table.bigInteger('podcast_id').primary().unique().index();
+        table.string('dark_muted');
+        table.string('dark_vibrant');
+        table.string('light_muted');
+        table.string('light_vibrant');
+        table.string('muted');
+        table.string('vibrant');
+        table.bigInteger('created_at').defaultTo(Date.now());
+        table.bigInteger('updated_at').defaultTo(Date.now());
+      });
+    })
+    .catch((err) => console.error(`Failed to create ${table.palette}`, err?.message));
 
   // await knex.schema
   //   .hasTable(Table.Chapters)
@@ -158,12 +177,13 @@ exports.up = async function (knex) {
  */
 exports.down = function (knex) {
   return Promise.all([
-    this.db.schema.dropTableIfExists(table.categories),
-    this.db.schema.dropTableIfExists(table.chapters),
-    this.db.schema.dropTableIfExists(table.episodes),
-    this.db.schema.dropTableIfExists(table.podcasts),
+    this.db.schema.dropTableIfExists(table.category),
+    this.db.schema.dropTableIfExists(table.chapter),
+    this.db.schema.dropTableIfExists(table.episode),
+    this.db.schema.dropTableIfExists(table.podcast),
     this.db.schema.dropTableIfExists(table.progress),
-    this.db.schema.dropTableIfExists(table.subscriptions),
-    this.db.schema.dropTableIfExists(table.users),
+    this.db.schema.dropTableIfExists(table.subscription),
+    this.db.schema.dropTableIfExists(table.user),
+    this.db.schema.dropTableIfExists(table.palette),
   ]);
 };
