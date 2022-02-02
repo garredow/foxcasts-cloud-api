@@ -7,6 +7,7 @@ export const Episode = gql`
     date: BigInt!
     title: String!
     description: String
+    progress: Int
     duration: Int
     fileSize: Int
     fileType: String

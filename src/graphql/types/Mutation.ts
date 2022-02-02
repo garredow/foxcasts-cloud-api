@@ -4,5 +4,6 @@ export const Mutation = gql`
   type Mutation {
     subscribe(podcastId: BigInt!): Int
     unsubscribe(podcastId: BigInt!): Int
+    updateProgress(episodeId: BigInt!, progress: Int!): Boolean
   }
 `;

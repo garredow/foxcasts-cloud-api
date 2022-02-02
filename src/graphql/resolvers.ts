@@ -24,6 +24,9 @@ export const resolvers: IResolvers = {
     async unsubscribe(root, { podcastId }, { dataClient, userId }, info) {
       return dataClient.unsubscribe(userId, podcastId);
     },
+    async updateProgress(root, { episodeId, progress }, { dataClient, userId }, info) {
+      return dataClient.setEpisodeProgress(userId, episodeId, progress);
+    },
   },
   User: {
     subscriptions(user, args, { dataClient }, info) {
@@ -41,6 +44,9 @@ export const resolvers: IResolvers = {
   Episode: {
     podcast(episode, args, { dataClient }) {
       return dataClient.getPodcast(episode.podcastId);
+    },
+    progress(episode, args, { dataClient, userId }) {
+      return dataClient.getEpisodeProgress(userId, episode.id);
     },
   },
 };

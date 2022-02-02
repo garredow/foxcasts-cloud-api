@@ -192,6 +192,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   subscribe?: Maybe<Scalars['Int']>;
   unsubscribe?: Maybe<Scalars['Int']>;
+  updateProgress?: Maybe<Scalars['Boolean']>;
 };
 
 export type MutationsubscribeArgs = {
@@ -200,6 +201,11 @@ export type MutationsubscribeArgs = {
 
 export type MutationunsubscribeArgs = {
   podcastId: Scalars['BigInt'];
+};
+
+export type MutationupdateProgressArgs = {
+  episodeId: Scalars['BigInt'];
+  progress: Scalars['Int'];
 };
 
 export type Podcast = {
@@ -228,6 +234,7 @@ export type Episode = {
   date: Scalars['BigInt'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
   duration?: Maybe<Scalars['Int']>;
   fileSize?: Maybe<Scalars['Int']>;
   fileType?: Maybe<Scalars['String']>;
@@ -394,8 +401,8 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
-  Podcast: ResolverTypeWrapper<Podcast>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Podcast: ResolverTypeWrapper<Podcast>;
   Episode: ResolverTypeWrapper<Episode>;
   Category: ResolverTypeWrapper<Category>;
   User: ResolverTypeWrapper<User>;
@@ -460,8 +467,8 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   Int: Scalars['Int'];
   Mutation: {};
-  Podcast: Podcast;
   Boolean: Scalars['Boolean'];
+  Podcast: Podcast;
   Episode: Episode;
   Category: Category;
   User: User;
@@ -751,6 +758,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationunsubscribeArgs, 'podcastId'>
   >;
+  updateProgress?: Resolver<
+    Maybe<ResolversTypes['Boolean']>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationupdateProgressArgs, 'episodeId' | 'progress'>
+  >;
 };
 
 export type PodcastResolvers<
@@ -785,6 +798,7 @@ export type EpisodeResolvers<
   date?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  progress?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   fileSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   fileType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -926,6 +940,7 @@ export interface Loaders<
     date?: LoaderResolver<Scalars['BigInt'], Episode, {}, TContext>;
     title?: LoaderResolver<Scalars['String'], Episode, {}, TContext>;
     description?: LoaderResolver<Maybe<Scalars['String']>, Episode, {}, TContext>;
+    progress?: LoaderResolver<Maybe<Scalars['Int']>, Episode, {}, TContext>;
     duration?: LoaderResolver<Maybe<Scalars['Int']>, Episode, {}, TContext>;
     fileSize?: LoaderResolver<Maybe<Scalars['Int']>, Episode, {}, TContext>;
     fileType?: LoaderResolver<Maybe<Scalars['String']>, Episode, {}, TContext>;

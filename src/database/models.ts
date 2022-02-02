@@ -54,3 +54,11 @@ export type DbSubscription = {
   created_at: number;
   updated_at: number;
 };
+
+export type DbProgress = {
+  user_id: string;
+  episode_id: number;
+  current_time: number;
+  created_at: number;
+  updated_at: number;
+};

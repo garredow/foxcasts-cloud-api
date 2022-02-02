@@ -87,6 +87,14 @@ export class Data {
     return this.db.addEpisode(res.episode);
   }
 
+  getEpisodeProgress(userId: string, episodeId: number): Promise<number> {
+    return this.db.getEpisodeProgress(userId, episodeId);
+  }
+
+  setEpisodeProgress(userId: string, episodeId: number, progress: number): Promise<boolean> {
+    return this.db.setEpisodeProgress(userId, episodeId, progress);
+  }
+
   async getRecentEpisodes(podcastId: number, count = 20): Promise<Episode[]> {
     const [podcast, episodes] = await Promise.all([
       this.db.getPodcastById(podcastId),

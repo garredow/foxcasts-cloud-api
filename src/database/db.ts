@@ -4,7 +4,7 @@ import pg from 'pg';
 import { PIApiEpisodeInfo, PIApiPodcast } from 'podcastdx-client/dist/src/types';
 import { config } from '../lib/config';
 import { Category, Episode, Podcast, Subscription, User } from '../models';
-import { DbEpisode, DbPodcast, DbSubscription, DbUser } from './models';
+import { DbEpisode, DbPodcast, DbProgress, DbSubscription, DbUser } from './models';
 
 pg.types.setTypeParser(pg.types.builtins.INT8, (value: string) => {
   return parseInt(value);
@@ -143,6 +143,21 @@ export class Database {
         100
       );
     }
+  }
+
+  getEpisodeProgress(userId: string, episodeId: number): Promise<number> {
+    return this.db<DbProgress>(Table.Progress)
+      .where({ user_id: userId, episode_id: episodeId })
+      .first()
+      .then((res) => (res ? res.current_time : 0));
+  }
+
+  async setEpisodeProgress(userId: string, episodeId: number, progress: number): Promise<boolean> {
+    await this.db<DbProgress>(Table.Progress)
+      .insert({ user_id: userId, episode_id: episodeId, current_time: progress })
+      .onConflict(['user_id', 'episode_id'])
+      .merge();
+    return true;
   }
 
   // Categories

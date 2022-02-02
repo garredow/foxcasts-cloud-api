@@ -129,10 +129,9 @@ exports.up = async function (knex) {
       return knex.schema.createTable(table.progress, (table) => {
         table.primary(['user_id', 'episode_id']);
         table.string('user_id').index();
-        table.bigInteger('podcast_id');
         table.bigInteger('episode_id').index();
         table.integer('current_time');
-        table.timestamp('created_at').defaultTo(knex.fn.now());
+        table.timestamp('created_at').defaultTo(Date.now());
         table.bigInteger('updated_at').defaultTo(Date.now());
       });
     })
