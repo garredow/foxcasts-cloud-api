@@ -190,8 +190,8 @@ export type QueryepisodeArgs = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  subscribe?: Maybe<Scalars['Int']>;
-  unsubscribe?: Maybe<Scalars['Int']>;
+  subscribe?: Maybe<Scalars['Boolean']>;
+  unsubscribe?: Maybe<Scalars['Boolean']>;
   updateProgress?: Maybe<Scalars['Boolean']>;
 };
 
@@ -228,7 +228,7 @@ export type Podcast = {
   author: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   artworkUrl: Scalars['String'];
-  artworkPalette: Palette;
+  artworkPalette?: Maybe<Palette>;
   feedUrl: Scalars['String'];
   episodes: Array<Episode>;
   isSubscribed: Scalars['Boolean'];
@@ -762,13 +762,13 @@ export type MutationResolvers<
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']
 > = {
   subscribe?: Resolver<
-    Maybe<ResolversTypes['Int']>,
+    Maybe<ResolversTypes['Boolean']>,
     ParentType,
     ContextType,
     RequireFields<MutationsubscribeArgs, 'podcastId'>
   >;
   unsubscribe?: Resolver<
-    Maybe<ResolversTypes['Int']>,
+    Maybe<ResolversTypes['Boolean']>,
     ParentType,
     ContextType,
     RequireFields<MutationunsubscribeArgs, 'podcastId'>
@@ -806,7 +806,7 @@ export type PodcastResolvers<
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   artworkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  artworkPalette?: Resolver<ResolversTypes['Palette'], ParentType, ContextType>;
+  artworkPalette?: Resolver<Maybe<ResolversTypes['Palette']>, ParentType, ContextType>;
   feedUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   episodes?: Resolver<
     Array<ResolversTypes['Episode']>,
@@ -970,7 +970,7 @@ export interface Loaders<
     author?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     description?: LoaderResolver<Maybe<Scalars['String']>, Podcast, {}, TContext>;
     artworkUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
-    artworkPalette?: LoaderResolver<Palette, Podcast, {}, TContext>;
+    artworkPalette?: LoaderResolver<Maybe<Palette>, Podcast, {}, TContext>;
     feedUrl?: LoaderResolver<Scalars['String'], Podcast, {}, TContext>;
     episodes?: LoaderResolver<Array<Episode>, Podcast, PodcastepisodesArgs, TContext>;
     isSubscribed?: LoaderResolver<Scalars['Boolean'], Podcast, {}, TContext>;

@@ -8,7 +8,7 @@ export const Podcast = gql`
     author: String!
     description: String
     artworkUrl: String!
-    artworkPalette: Palette!
+    artworkPalette: Palette
     feedUrl: String!
     episodes(count: Int!): [Episode!]!
     # categories: [Category!]!

@@ -1,55 +1,57 @@
 import { IResolvers } from 'mercurius';
+import { Podcast } from '../models';
 
 export const resolvers: IResolvers = {
   Query: {
     user(root, args, { userId, dataClient }, info) {
-      return dataClient.getUserById(userId);
+      return dataClient.user.getById(userId);
     },
     search(root, { query, count }, { dataClient }, info) {
-      return dataClient.search(query, count ?? undefined);
+      return dataClient.podcast.search(query, count ?? undefined);
     },
     async podcast(root, { id }, { dataClient }, info) {
-      const res = await dataClient.getPodcast(id);
+      const res = await dataClient.podcast.getById(id);
       return res;
     },
     async episode(root, { id }, { dataClient }, info) {
-      const res = await dataClient.getEpisode(id);
+      const res = await dataClient.episode.getById(id);
       return res;
     },
   },
   Mutation: {
     async subscribe(root, { podcastId }, { dataClient, userId }, info) {
-      return dataClient.subscribe(userId, podcastId);
+      return dataClient.podcast.subscribe(userId, podcastId);
     },
     async unsubscribe(root, { podcastId }, { dataClient, userId }, info) {
-      return dataClient.unsubscribe(userId, podcastId);
+      return dataClient.podcast.unsubscribe(userId, podcastId);
     },
     async updateProgress(root, { episodeId, progress }, { dataClient, userId }, info) {
-      return dataClient.setEpisodeProgress(userId, episodeId, progress);
+      return dataClient.episode.setUserProgress(userId, episodeId, progress);
     },
   },
   User: {
     subscriptions(user, args, { dataClient }, info) {
-      return dataClient.getPodcastsByUserId(user.id);
+      return dataClient.podcast.getByUserId(user.id);
     },
   },
   Podcast: {
     episodes(podcast, { count }, { dataClient }, info) {
-      return count > 0 ? dataClient.getRecentEpisodes(podcast.id, count) : [];
+      return count > 0 ? dataClient.episode.getRecent(podcast.id, count) : [];
     },
     isSubscribed(podcast, args, { dataClient, userId }, info) {
-      return dataClient.checkIfSubscribed(userId, podcast.id);
+      return dataClient.podcast.checkIfSubscribed(userId, podcast.id);
     },
     artworkPalette(podcast, args, { dataClient }, info) {
-      return dataClient.getPodcastPalette(podcast.id);
+      return dataClient.artwork.getPalette(podcast.id);
     },
   },
   Episode: {
-    podcast(episode, args, { dataClient }) {
-      return dataClient.getPodcast(episode.podcastId);
+    async podcast(episode, args, { dataClient }) {
+      const res = await dataClient.podcast.getById(episode.podcastId);
+      return res as Podcast;
     },
     progress(episode, args, { dataClient, userId }) {
-      return dataClient.getEpisodeProgress(userId, episode.id);
+      return dataClient.episode.getUserProgress(userId, episode.id);
     },
   },
 };

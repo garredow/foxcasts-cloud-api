@@ -19,121 +19,122 @@ export class Data {
     });
   }
 
-  async getUserById(id: string): Promise<User> {
-    return this.db.addUser({ id });
-  }
+  artwork = {
+    getPalette: async (podcastId: number): Promise<Palette | undefined> => {
+      const existing = await this.db.getPaletteByPodcastId(podcastId);
+      if (existing) return existing;
 
-  async subscribe(userId: string, podcastId: number): Promise<number> {
-    return this.db.addSubscription(userId, podcastId);
-  }
+      const podcast = await this.podcast.getById(podcastId);
+      if (!podcast) return;
 
-  async unsubscribe(userId: string, podcastId: number): Promise<number> {
-    return this.db.deleteSubscription(userId, podcastId);
-  }
+      const image = await fetch(podcast.artworkUrl).then((res) => res.buffer());
+      const palette = await Vibrant.from(image).getPalette();
 
-  async checkIfSubscribed(userId: string, podcastId: number): Promise<boolean> {
-    const sub = this.db.getSubscription(userId, podcastId);
-    return !!sub;
-  }
+      const result = {
+        darkMuted: palette.DarkMuted?.hex,
+        darkVibrant: palette.DarkVibrant?.hex,
+        lightMuted: palette.LightMuted?.hex,
+        lightVibrant: palette.LightVibrant?.hex,
+        muted: palette.Muted?.hex,
+        vibrant: palette.Vibrant?.hex,
+      };
 
-  async search(query: string, count = 30) {
-    const result: SearchResult[] = await this.podcastIndex
-      .search(query, { max: count })
-      .then((res) => res.feeds.map((a) => toSearchResult(a)));
+      await this.db.addPalette(podcastId, result);
 
-    return result;
-  }
+      return result;
+    },
+  };
 
-  async getPodcast(id: number) {
-    const existing = await this.db.getPodcastById(id);
-    if (existing) {
-      return existing;
-    }
-
-    const res = await this.podcastIndex.podcastById(id);
-    return this.db.addPodcast(res.feed);
-  }
-
-  async getPodcastsByIds(ids: number[]): Promise<Podcast[]> {
-    const dbPodcasts = await this.db.getPodcastsByIds(ids);
-
-    const dbIds = dbPodcasts.map((a) => a.id);
-    const otherIds = ids.filter((a) => !dbIds.includes(a));
-
-    if (otherIds.length > 0) {
-      for (const id of otherIds) {
-        const piRes = await this.podcastIndex.podcastById(id);
-        const res = await this.db.addPodcast(piRes.feed);
-        dbPodcasts.push(res);
+  episode = {
+    getById: async (id: number): Promise<Episode | undefined> => {
+      const existing = await this.db.getEpisodeById(id);
+      if (existing) {
+        return existing;
       }
-    }
 
-    return dbPodcasts;
-  }
+      const res = await this.podcastIndex.episodeById(id);
+      return this.db.addEpisode(res.episode);
+    },
+    getUserProgress: (userId: string, episodeId: number): Promise<number> => {
+      return this.db.getEpisodeProgress(userId, episodeId);
+    },
+    setUserProgress: (userId: string, episodeId: number, progress: number): Promise<boolean> => {
+      return this.db.setEpisodeProgress(userId, episodeId, progress);
+    },
+    getRecent: async (podcastId: number, count = 20): Promise<Episode[]> => {
+      const [podcast, episodes] = await Promise.all([
+        this.db.getPodcastById(podcastId),
+        this.db.getEpisodesByPodcastId(podcastId),
+      ]);
+      if (!podcast) return [];
 
-  async getPodcastsByUserId(userId: string): Promise<Podcast[]> {
-    const podcastIds = await this.db
-      .getSubscriptionsByUserId(userId)
-      .then((res) => res.map((a) => a.podcastId));
+      const isStale = (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs < Date.now();
+      if (!isStale && episodes.length > 0) {
+        return episodes;
+      }
 
-    return this.getPodcastsByIds(podcastIds);
-  }
+      const res = await this.podcastIndex.episodesByFeedId(podcastId, { max: count });
+      await this.db.addEpisodes(res.items);
 
-  async getPodcastPalette(podcastId: number): Promise<Palette> {
-    const existing = await this.db.getPaletteByPodcastId(podcastId);
-    if (existing) return existing;
+      return this.db.getEpisodesByPodcastId(podcastId);
+    },
+  };
 
-    const podcast = await this.getPodcast(podcastId);
-    const image = await fetch(podcast.artworkUrl).then((res) => res.buffer());
-    const palette = await Vibrant.from(image).getPalette();
+  podcast = {
+    search: (query: string, count = 30): Promise<SearchResult[]> => {
+      return this.podcastIndex
+        .search(query, { max: count })
+        .then((res) => res.feeds.map((a) => toSearchResult(a)));
+    },
+    getById: async (id: number): Promise<Podcast | undefined> => {
+      const existing = await this.db.getPodcastById(id);
+      if (existing) {
+        return existing;
+      }
 
-    const result = {
-      darkMuted: palette.DarkMuted?.hex,
-      darkVibrant: palette.DarkVibrant?.hex,
-      lightMuted: palette.LightMuted?.hex,
-      lightVibrant: palette.LightVibrant?.hex,
-      muted: palette.Muted?.hex,
-      vibrant: palette.Vibrant?.hex,
-    };
+      const res = await this.podcastIndex.podcastById(id);
+      return this.db.addPodcast(res.feed);
+    },
+    getByIds: async (ids: number[]): Promise<Podcast[]> => {
+      const dbPodcasts = await this.db.getPodcastsByIds(ids);
 
-    await this.db.addPalette(podcastId, result);
+      const dbIds = dbPodcasts.map((a) => a.id);
+      const otherIds = ids.filter((a) => !dbIds.includes(a));
 
-    return result;
-  }
+      if (otherIds.length > 0) {
+        for (const id of otherIds) {
+          const piRes = await this.podcastIndex.podcastById(id);
+          const res = await this.db.addPodcast(piRes.feed);
+          dbPodcasts.push(res);
+        }
+      }
 
-  async getEpisode(id: number) {
-    const existing = await this.db.getEpisodeById(id);
-    if (existing) {
-      return existing;
-    }
+      return dbPodcasts;
+    },
+    getByUserId: async (userId: string): Promise<Podcast[]> => {
+      const podcastIds = await this.db
+        .getSubscriptionsByUserId(userId)
+        .then((res) => res.map((a) => a.podcastId));
 
-    const res = await this.podcastIndex.episodeById(id);
-    return this.db.addEpisode(res.episode);
-  }
+      return this.podcast.getByIds(podcastIds);
+    },
+    subscribe: async (userId: string, podcastId: number): Promise<boolean> => {
+      await this.db.addSubscription(userId, podcastId);
+      return true;
+    },
+    unsubscribe: async (userId: string, podcastId: number): Promise<boolean> => {
+      await this.db.deleteSubscription(userId, podcastId);
+      return true;
+    },
+    checkIfSubscribed: async (userId: string, podcastId: number): Promise<boolean> => {
+      const sub = this.db.getSubscription(userId, podcastId);
+      return !!sub;
+    },
+  };
 
-  getEpisodeProgress(userId: string, episodeId: number): Promise<number> {
-    return this.db.getEpisodeProgress(userId, episodeId);
-  }
-
-  setEpisodeProgress(userId: string, episodeId: number, progress: number): Promise<boolean> {
-    return this.db.setEpisodeProgress(userId, episodeId, progress);
-  }
-
-  async getRecentEpisodes(podcastId: number, count = 20): Promise<Episode[]> {
-    const [podcast, episodes] = await Promise.all([
-      this.db.getPodcastById(podcastId),
-      this.db.getEpisodesByPodcastId(podcastId),
-    ]);
-    if (!podcast) return [];
-
-    const isStale = (podcast.lastFetchedEpisodes ?? 0) + config.caching.dataStaleMs < Date.now();
-    if (!isStale && episodes.length > 0) {
-      return episodes;
-    }
-
-    const res = await this.podcastIndex.episodesByFeedId(podcastId, { max: count });
-    await this.db.addEpisodes(res.items);
-
-    return this.db.getEpisodesByPodcastId(podcastId);
-  }
+  user = {
+    getById: (id: string): Promise<User> => {
+      return this.db.addUser({ id });
+    },
+  };
 }
