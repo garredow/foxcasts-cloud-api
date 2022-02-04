@@ -81,7 +81,7 @@ jobs:
             fi
 
 workflows:
-  build-and-test:
+  build-test-deploy:
     jobs:
       - install
       - build:
