@@ -37,6 +37,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
+            - package.json
             - old_version
             - new_version
   build-docker:
@@ -46,8 +47,6 @@ jobs:
           version: 20.10.11
       - attach_workspace:
           at: .
-      # - run: mkdir -p ~/.ssh
-      # - run: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
           name: 'Build Docker Image'
           command: |
@@ -55,11 +54,10 @@ jobs:
             NEW_VERSION=$(cat new_version)
             echo "From ${OLD_VERSION} to ${NEW_VERSION}"
             if [[ -z "${NEW_VERSION}" ]]; then
-              echo "No new version. Skip deploy."
+              echo "No new version. Skip docker build."
             else
-              # git pull
-              echo "Building v${NEW_VERSION}"
-              echo "garredow/foxcasts-cloud-api:${NEW_VERSION}"
+              echo "Building garredow/foxcasts-cloud-api:${NEW_VERSION}"
+              echo $(cat package.json)
               echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
               docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
               docker push garredow/foxcasts-cloud-api:$NEW_VERSION
