@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/garredow/foxcasts-cloud-api/compare/v1.0.2...v1.0.3) (2022-02-04)
+
+
+### Bug Fixes
+
+* test deploy ([02d45b7](https://github.com/garredow/foxcasts-cloud-api/commit/02d45b7f1101842bd2d696f673413fa886ff0039))
+
 ## [1.0.2](https://github.com/garredow/foxcasts-cloud-api/compare/v1.0.1...v1.0.2) (2022-02-04)
 
 
