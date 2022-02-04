@@ -1,0 +1,106 @@
+version: 2.1
+executors:
+  builder:
+    docker:
+      - image: circleci/node:16.13.1
+
+jobs:
+  install:
+    executor: builder
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - ./*
+  build:
+    executor: builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Build'
+          command: npm run build
+  version:
+    executor: builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          command: echo "" > old_version && echo "" > new_version
+      - run:
+          name: 'Version'
+          command: npx semantic-release
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - old_version
+            - new_version
+  build-docker:
+    executor: builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Build Docker Image'
+          command: |
+            NEW_VERSION=$(cat new_version)
+            docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN
+            docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
+            docker push garredow/foxcasts-cloud-api:$NEW_VERSION
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - old_version
+            - new_version
+  deploy:
+    executor: builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Deploy'
+          command: |
+            OLD_VERSION=$(cat old_version)
+            NEW_VERSION=$(cat new_version)
+            echo "From ${OLD_VERSION} to ${NEW_VERSION}"
+            if [[ -z "${NEW_VERSION}" ]]; then
+              echo "No new version. Skip deploy."
+            else
+              echo "Deploying v${NEW_VERSION}"
+            fi
+
+workflows:
+  build-and-test:
+    jobs:
+      - install
+      - build:
+          requires:
+            - install
+      - version:
+          context: github-versioning
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - cicd
+      - build-docker:
+          context: docker-hub
+          requires:
+            - version
+          filters:
+            branches:
+              only:
+                - cicd
+      - deploy:
+          context: digital-ocean-deploy
+          requires:
+            - build-docker
+          filters:
+            branches:
+              only:
+                - cicd
