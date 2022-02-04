@@ -42,6 +42,8 @@ jobs:
   build-docker:
     executor: builder
     steps:
+      - setup_remote_docker:
+          version: 20.10.11
       - attach_workspace:
           at: .
       - run:
@@ -55,7 +57,7 @@ jobs:
             else
               echo "Building v${NEW_VERSION}"
               echo "garredow/foxcasts-cloud-api:${NEW_VERSION}"
-              docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN
+              echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
               docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
               docker push garredow/foxcasts-cloud-api:$NEW_VERSION
             fi
