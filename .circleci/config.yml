@@ -47,10 +47,18 @@ jobs:
       - run:
           name: 'Build Docker Image'
           command: |
+            OLD_VERSION=$(cat old_version)
             NEW_VERSION=$(cat new_version)
-            docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN
-            docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
-            docker push garredow/foxcasts-cloud-api:$NEW_VERSION
+            echo "From ${OLD_VERSION} to ${NEW_VERSION}"
+            if [[ -z "${NEW_VERSION}" ]]; then
+              echo "No new version. Skip deploy."
+            else
+              echo "Building v${NEW_VERSION}"
+              echo "garredow/foxcasts-cloud-api:${NEW_VERSION}"
+              docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN
+              docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
+              docker push garredow/foxcasts-cloud-api:$NEW_VERSION
+            fi
       - persist_to_workspace:
           root: ./
           paths:
