@@ -59,10 +59,10 @@ jobs:
             else
               # git pull
               echo "Building v${NEW_VERSION}"
-              echo "garredow/foxcasts-cloud-api:${NEW_VERSION}-${CIRCLE_BUILD_NUM}"
+              echo "garredow/foxcasts-cloud-api:${NEW_VERSION}"
               echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-              docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION-$CIRCLE_BUILD_NUM .
-              docker push garredow/foxcasts-cloud-api:$NEW_VERSION-$CIRCLE_BUILD_NUM
+              docker build -t garredow/foxcasts-cloud-api:$NEW_VERSION .
+              docker push garredow/foxcasts-cloud-api:$NEW_VERSION
             fi
   deploy:
     executor: builder
@@ -79,7 +79,7 @@ jobs:
               echo "No new version. Skip deploy."
             else
               echo "Deploying v${NEW_VERSION}"
-              ssh -oStrictHostKeyChecking=no -v $DO_USER@$DO_IP_ADDRESS "./apps/foxcasts-cloud-api/install.sh garredow/foxcasts-cloud-api:${NEW_VERSION}-${CIRCLE_BUILD_NUM}"
+              ssh -oStrictHostKeyChecking=no -v $DO_USER@$DO_IP_ADDRESS "./apps/foxcasts-cloud-api/install.sh garredow/foxcasts-cloud-api:${NEW_VERSION}"
             fi
 
 workflows:
