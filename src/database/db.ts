@@ -34,6 +34,9 @@ export class Database {
         password: config.database.password,
         database: config.database.database,
         application_name: config.meta.appName,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
     });
   }

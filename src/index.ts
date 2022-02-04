@@ -1,5 +1,6 @@
 import arg from 'arg';
 import mercuriusCodegen from 'mercurius-codegen';
+import { config } from './lib/config';
 import { configureServer } from './server';
 
 const args = arg({
@@ -14,7 +15,7 @@ mercuriusCodegen(server, {
   targetPath: './src/graphql/generated.ts',
 }).catch(console.error);
 
-server.listen(args['--port'] || 3000, (err) => {
+server.listen(config.meta.serverPort, '0.0.0.0', (err) => {
   if (err) {
     console.log(err);
     process.exit(1);
