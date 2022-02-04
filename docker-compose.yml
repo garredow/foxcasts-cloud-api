@@ -6,7 +6,7 @@ networks:
 
 services:
   foxcasts-api:
-    image: ${DOCKER_IMAGE}:${DOCKER_TAG}
+    image: $DOCKER_IMAGE
     environment:
       APP_NAME: $APP_NAME
       SERVER_PORT: $SERVER_PORT
