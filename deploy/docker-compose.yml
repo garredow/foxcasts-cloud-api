@@ -5,7 +5,7 @@ networks:
     external: true
 
 services:
-  foxcasts-api:
+  foxcasts-cloud-api:
     image: $DOCKER_IMAGE
     environment:
       APP_NAME: $APP_NAME
@@ -23,10 +23,10 @@ services:
       PI_API_SECRET: $PI_API_SECRET
       DATA_STALE_MS: $DATA_STALE_MS
     labels:
-      - traefik.http.routers.foxcasts-api.rule=Host(`${TRAEFIK_HOST}`)
-      - traefik.http.routers.foxcasts-api.tls=true
-      - traefik.http.routers.foxcasts-api.tls.certresolver=lets-encrypt
+      - traefik.http.routers.foxcasts-cloud-api.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.foxcasts-cloud-api.tls=true
+      - traefik.http.routers.foxcasts-cloud-api.tls.certresolver=lets-encrypt
       - traefik.port=80
-      - traefik.http.services.foxcasts-api.loadbalancer.server.port=${SERVER_PORT}
+      - traefik.http.services.foxcasts-cloud-api.loadbalancer.server.port=${SERVER_PORT}
     networks:
       - web
