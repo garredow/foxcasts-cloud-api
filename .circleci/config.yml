@@ -42,7 +42,6 @@ jobs:
   build-docker:
     executor: builder
     steps:
-      - checkout
       - setup_remote_docker:
           version: 20.10.11
       - attach_workspace:
@@ -56,6 +55,7 @@ jobs:
             if [[ -z "${NEW_VERSION}" ]]; then
               echo "No new version. Skip deploy."
             else
+              git pull
               echo "Building v${NEW_VERSION}"
               echo "garredow/foxcasts-cloud-api:${NEW_VERSION}-${CIRCLE_BUILD_NUM}"
               echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
