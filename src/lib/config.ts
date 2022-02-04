@@ -16,6 +16,7 @@ enum LogLevel {
 export type Config = {
   meta: {
     appName: string;
+    serverPort: number;
   };
   logger: {
     enabled: boolean;
@@ -46,6 +47,7 @@ function createConfig() {
   const config: Config = {
     meta: {
       appName: process.env.APP_NAME!,
+      serverPort: Number(process.env.SERVER_PORT),
     },
     logger: {
       enabled: parseBool(process.env.LOGGER_ENABLED, true),
@@ -75,6 +77,7 @@ function createConfig() {
   const schema = Joi.object({
     meta: {
       appName: Joi.string().required(),
+      serverPort: Joi.number().required(),
     },
     logger: {
       enabled: Joi.bool().required(),

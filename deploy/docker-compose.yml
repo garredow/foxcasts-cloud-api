@@ -1,0 +1,32 @@
+version: "3"
+
+networks:
+  web:
+    external: true
+
+services:
+  foxcasts-cloud-api:
+    image: $DOCKER_IMAGE
+    environment:
+      APP_NAME: $APP_NAME
+      SERVER_PORT: $SERVER_PORT
+      LOGGER_ENABLED: $LOGGER_ENABLED
+      LOGGER_LEVEL: $LOGGER_LEVEL
+      DB_HOST: $DB_HOST
+      DB_PORT: $DB_PORT
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_DATABASE: $DB_DATABASE
+      AUTH0_DOMAIN: $AUTH0_DOMAIN
+      AUTH0_AUDIENCE: $AUTH0_AUDIENCE
+      PI_API_KEY: $PI_API_KEY
+      PI_API_SECRET: $PI_API_SECRET
+      DATA_STALE_MS: $DATA_STALE_MS
+    labels:
+      - traefik.http.routers.foxcasts-cloud-api.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.foxcasts-cloud-api.tls=true
+      - traefik.http.routers.foxcasts-cloud-api.tls.certresolver=lets-encrypt
+      - traefik.port=80
+      - traefik.http.services.foxcasts-cloud-api.loadbalancer.server.port=${SERVER_PORT}
+    networks:
+      - web
