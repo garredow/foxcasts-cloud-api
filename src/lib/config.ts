@@ -33,6 +33,7 @@ export type Config = {
     user: string;
     password: string;
     database: string;
+    ssl: boolean;
   };
   podcastIndex: {
     apiKey: string;
@@ -64,6 +65,7 @@ function createConfig() {
       user: process.env.DB_USER!,
       password: process.env.DB_PASSWORD!,
       database: process.env.DB_DATABASE!,
+      ssl: parseBool(process.env.DB_ENABLE_SSL, false),
     },
     podcastIndex: {
       apiKey: process.env.PI_API_KEY!,
@@ -96,6 +98,7 @@ function createConfig() {
       user: Joi.string().required(),
       password: Joi.string().required(),
       database: Joi.string().required(),
+      ssl: Joi.bool().required(),
     },
     podcastIndex: {
       apiKey: Joi.string().required(),
