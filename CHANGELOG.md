@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/garredow/foxcasts-cloud-api/compare/v1.0.0...v1.1.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* await getSubscription ([5bb6dd6](https://github.com/garredow/foxcasts-cloud-api/commit/5bb6dd65ec28a8aa9718525e13712b8049aa5d27))
+
+
+### Features
+
+* separate name into first and last ([135a038](https://github.com/garredow/foxcasts-cloud-api/commit/135a03857df7dc11d5974a5ce96815aa39e6ffd2))
+
 # 1.0.0 (2022-02-05)
 
 ### Bug Fixes
