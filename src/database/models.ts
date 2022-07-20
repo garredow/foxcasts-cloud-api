@@ -40,7 +40,8 @@ export type DbPodcast = {
 
 export type DbUser = {
   id: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   avatar_url?: string;
   created_at: number;
@@ -63,6 +64,7 @@ export type DbProgress = {
 };
 
 export type DbPalette = {
+  id: number;
   podcast_id: number;
   dark_muted: string;
   dark_vibrant: string;
